@@ -6,29 +6,32 @@ import SignIn from './pages/AuthPages/SignIn';
 import SignUp from './pages/AuthPages/SignUp';
 import NotFound from './pages/OtherPage/NotFound';
 import { ScrollToTop } from './components/common/ScrollToTop';
+import { AuthProvider } from './context/AuthContext';
 
 export default function AppRouter() {
-  return (
-    <>
-      <Router>
-        <ScrollToTop />
-        <Routes>
-          {/* Dashboard Layout */}
-          <Route element={<AppLayout />}>
-            <Route index path='/' element={<Home />} />
+	return (
+		<>
+			<Router>
+				<AuthProvider>
+					<ScrollToTop />
+					<Routes>
+						{/* Dashboard Layout */}
+						<Route element={<AppLayout />}>
+							<Route index path='/' element={<Home />} />
 
-            {/* Others Page */}
-            <Route path='/profile' element={<UserProfiles />} />
-          </Route>
+							{/* Others Page */}
+							<Route path='/profile' element={<UserProfiles />} />
+						</Route>
 
-          {/* Auth Layout */}
-          <Route path='/signin' element={<SignIn />} />
-          <Route path='/signup' element={<SignUp />} />
+						{/* Auth Layout */}
+						<Route path='/signin' element={<SignIn />} />
+						<Route path='/signup' element={<SignUp />} />
 
-          {/* Fallback Route */}
-          <Route path='*' element={<NotFound />} />
-        </Routes>
-      </Router>
-    </>
-  );
+						{/* Fallback Route */}
+						<Route path='*' element={<NotFound />} />
+					</Routes>
+				</AuthProvider>
+			</Router>
+		</>
+	);
 }
