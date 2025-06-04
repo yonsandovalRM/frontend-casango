@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '../../icons';
 import Label from '../form/Label';
 import Input from '../form/input/InputField';
@@ -34,18 +34,27 @@ const loginSchema = yup
 export default function SignInForm() {
 	const { login } = useAuth();
 	const [showPassword, setShowPassword] = useState(false);
+	const navigate = useNavigate();
+	const location = useLocation();
+	const from = location.state?.from?.pathname || '/dashboard';
 
 	const { handleSubmit, control, reset } = useForm({
 		resolver: yupResolver(loginSchema),
 		defaultValues: {
-			email: '',
-			password: '',
+			email: 'dr@test.com',
+			password: '123456',
 			rememberMe: false,
 		},
 	});
 	const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
-		await login(data);
-		reset();
+		const response = await login(data);
+
+		if (response.status === 201) {
+			reset();
+			navigate(from, {
+				replace: true,
+			});
+		}
 	};
 	return (
 		<div className='flex flex-col flex-1'>
