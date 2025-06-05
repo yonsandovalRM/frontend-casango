@@ -6,29 +6,52 @@ import SignIn from './pages/AuthPages/SignIn';
 import SignUp from './pages/AuthPages/SignUp';
 import NotFound from './pages/OtherPage/NotFound';
 import { ScrollToTop } from './components/common/ScrollToTop';
+import { AuthProvider } from './context/AuthContext';
+import { RequireAuth } from './components/auth/RequireAuth';
+import { Landing } from './pages/PublicPages/Landing';
+import Unauthorized from './pages/OtherPage/Unauthorized';
+import { Users } from './pages/Dashboard/Users';
+
+const ROLES = {
+	ADMIN: 'admin',
+	USER: 'user',
+	PROFESSIONAL: 'professional',
+};
 
 export default function AppRouter() {
-  return (
-    <>
-      <Router>
-        <ScrollToTop />
-        <Routes>
-          {/* Dashboard Layout */}
-          <Route element={<AppLayout />}>
-            <Route index path='/' element={<Home />} />
+	return (
+		<>
+			<Router>
+				<AuthProvider>
+					<ScrollToTop />
+					<Routes>
+						{/* Dashboard Layout */}
+						<Route
+							element={
+								<RequireAuth
+									allowedRoles={[ROLES.ADMIN, ROLES.USER, ROLES.PROFESSIONAL]}
+								/>
+							}
+						>
+							<Route element={<AppLayout />}>
+								<Route index path='/dashboard' element={<Home />} />
 
-            {/* Others Page */}
-            <Route path='/profile' element={<UserProfiles />} />
-          </Route>
+								<Route path='/users' element={<Users />} />
 
-          {/* Auth Layout */}
-          <Route path='/signin' element={<SignIn />} />
-          <Route path='/signup' element={<SignUp />} />
-
-          {/* Fallback Route */}
-          <Route path='*' element={<NotFound />} />
-        </Routes>
-      </Router>
-    </>
-  );
+								{/* Others Page */}
+								<Route path='/profile' element={<UserProfiles />} />
+							</Route>
+						</Route>
+						<Route path='/' element={<Landing />} />
+						{/* Auth Layout */}
+						<Route path='/signin' element={<SignIn />} />
+						<Route path='/signup' element={<SignUp />} />
+						<Route path='/unauthorized' element={<Unauthorized />} />
+						{/* Fallback Route */}
+						<Route path='*' element={<NotFound />} />
+					</Routes>
+				</AuthProvider>
+			</Router>
+		</>
+	);
 }
