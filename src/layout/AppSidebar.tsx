@@ -47,7 +47,7 @@ const othersItems: NavItem[] = [
 ];
 
 const AppSidebar: React.FC = () => {
-	const { isExpanded, isMobileOpen } = useSidebar();
+	const { isExpanded, isMobileOpen, setIsMobileOpen } = useSidebar();
 	const location = useLocation();
 
 	const [openSubmenu, setOpenSubmenu] = useState<{
@@ -155,6 +155,11 @@ const AppSidebar: React.FC = () => {
 					) : (
 						nav.path && (
 							<Link
+								onClick={() => {
+									if (isMobileOpen) {
+										setIsMobileOpen(false);
+									}
+								}}
 								to={nav.path}
 								className={`menu-item group ${
 									isActive(nav.path) ? 'menu-item-active' : 'menu-item-inactive'
