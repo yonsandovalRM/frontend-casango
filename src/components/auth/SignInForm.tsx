@@ -10,6 +10,7 @@ import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../../hooks/useAuth';
+import api from '../../api/axios';
 
 interface IFormInputs {
 	email: string;
@@ -32,7 +33,7 @@ const loginSchema = yup
 	.required();
 
 export default function SignInForm() {
-	const { login } = useAuth();
+	const { setAuth } = useAuth();
 	const [showPassword, setShowPassword] = useState(false);
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -47,13 +48,17 @@ export default function SignInForm() {
 		},
 	});
 	const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
-		const response = await login(data);
-
-		if (response.status === 201) {
+		try {
+			const response = await api.post('/core/auth/login', data, {
+				withCredentials: true,
+			});
+			setAuth(response.data);
 			reset();
 			navigate(from, {
 				replace: true,
 			});
+		} catch (error) {
+			console.log(error);
 		}
 	};
 	return (

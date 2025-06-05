@@ -1,45 +1,30 @@
 import { createContext, useState } from 'react';
-import api from '../api/axios';
 
-interface AuthContextType {
-	user: any;
-	isAuthenticated: boolean;
-	login: (credentials: { email: string; password: string }) => Promise<any>;
-	logout: () => void;
+interface User {
+	id: string;
+	email: string;
+	role: string;
+	createdAt: string;
+	updatedAt: string;
 }
 
-export const AuthContext = createContext<AuthContextType>({
-	user: null,
-	isAuthenticated: false,
-	login: async () => {},
-	logout: () => {},
-});
+interface Auth {
+	user: User | null;
+	accessToken: string | null;
+}
+
+interface AuthContextType {
+	auth: Auth | null;
+	setAuth: (auth: Auth | null) => void;
+}
+
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-	const [user, setUser] = useState(null);
-	const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-	const login = async (credentials: { email: string; password: string }) => {
-		try {
-			const response = await api.post('/core/auth/login', credentials, {
-				withCredentials: true,
-			});
-			setUser(response.data.user);
-			setIsAuthenticated(true);
-			return response;
-		} catch (error) {
-			console.log(error);
-			throw error;
-		}
-	};
-
-	const logout = () => {
-		setUser(null);
-		setIsAuthenticated(false);
-	};
+	const [auth, setAuth] = useState<Auth | null>(null);
 
 	return (
-		<AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+		<AuthContext.Provider value={{ auth, setAuth }}>
 			{children}
 		</AuthContext.Provider>
 	);

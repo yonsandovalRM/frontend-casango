@@ -21,12 +21,17 @@ const navItems: NavItem[] = [
 	{
 		icon: <GridIcon />,
 		name: 'Dashboard',
-		path: '/',
+		path: '/dashboard',
 	},
 	{
 		icon: <UserCircleIcon />,
 		name: 'User Profile',
 		path: '/profile',
+	},
+	{
+		icon: <UserCircleIcon />,
+		name: 'Usuarios',
+		path: '/users',
 	},
 ];
 

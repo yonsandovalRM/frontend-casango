@@ -10,6 +10,7 @@ import { AuthProvider } from './context/AuthContext';
 import { RequireAuth } from './components/auth/RequireAuth';
 import { Landing } from './pages/PublicPages/Landing';
 import Unauthorized from './pages/OtherPage/Unauthorized';
+import { Users } from './pages/Dashboard/Users';
 
 const ROLES = {
 	ADMIN: 'admin',
@@ -34,6 +35,8 @@ export default function AppRouter() {
 						>
 							<Route element={<AppLayout />}>
 								<Route index path='/dashboard' element={<Home />} />
+
+								<Route path='/users' element={<Users />} />
 
 								{/* Others Page */}
 								<Route path='/profile' element={<UserProfiles />} />
