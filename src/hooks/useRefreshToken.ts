@@ -16,5 +16,5 @@ export const useRefreshToken = () => {
 		}
 	};
 
-	return refresh;
+	return { refresh };
 };

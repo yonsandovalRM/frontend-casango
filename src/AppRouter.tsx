@@ -11,6 +11,7 @@ import { RequireAuth } from './components/auth/RequireAuth';
 import { Landing } from './pages/PublicPages/Landing';
 import Unauthorized from './pages/OtherPage/Unauthorized';
 import { Users } from './pages/Dashboard/Users';
+import { SessionPersist } from './components/auth/SessionPersist';
 
 const ROLES = {
 	ADMIN: 'admin',
@@ -26,20 +27,22 @@ export default function AppRouter() {
 					<ScrollToTop />
 					<Routes>
 						{/* Dashboard Layout */}
-						<Route
-							element={
-								<RequireAuth
-									allowedRoles={[ROLES.ADMIN, ROLES.USER, ROLES.PROFESSIONAL]}
-								/>
-							}
-						>
-							<Route element={<AppLayout />}>
-								<Route index path='/dashboard' element={<Home />} />
+						<Route element={<SessionPersist />}>
+							<Route
+								element={
+									<RequireAuth
+										allowedRoles={[ROLES.ADMIN, ROLES.USER, ROLES.PROFESSIONAL]}
+									/>
+								}
+							>
+								<Route element={<AppLayout />}>
+									<Route index path='/dashboard' element={<Home />} />
 
-								<Route path='/users' element={<Users />} />
+									<Route path='/users' element={<Users />} />
 
-								{/* Others Page */}
-								<Route path='/profile' element={<UserProfiles />} />
+									{/* Others Page */}
+									<Route path='/profile' element={<UserProfiles />} />
+								</Route>
 							</Route>
 						</Route>
 						<Route path='/' element={<Landing />} />

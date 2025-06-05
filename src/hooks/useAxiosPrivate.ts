@@ -5,7 +5,7 @@ import { useRefreshToken } from './useRefreshToken';
 import { useNavigate } from 'react-router';
 
 export const useAxiosPrivate = () => {
-	const refresh = useRefreshToken();
+	const { refresh } = useRefreshToken();
 	const navigate = useNavigate();
 	const { auth } = useAuth();
 
