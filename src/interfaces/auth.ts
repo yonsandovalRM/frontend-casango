@@ -1,6 +1,7 @@
 export interface User {
 	id: string;
 	email: string;
+	name: string;
 	role: string;
 	createdAt: string;
 	updatedAt: string;
@@ -19,4 +20,10 @@ export interface AuthContextType {
 	isLoading: boolean;
 	isInitialized: boolean;
 	refreshToken: () => Promise<string | null>;
+}
+
+export enum UserRole {
+	ADMIN = 'admin',
+	PROFESSIONAL = 'professional',
+	USER = 'user',
 }

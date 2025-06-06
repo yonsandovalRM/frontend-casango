@@ -13,12 +13,7 @@ import Unauthorized from './pages/OtherPage/Unauthorized';
 import { Users } from './pages/Dashboard/Users';
 import { RedirectIfAuthenticated } from './components/auth/RedirectIfAuthenticated';
 import { Plans } from './pages/Dashboard/Plans';
-
-const ROLES = {
-	ADMIN: 'admin',
-	USER: 'user',
-	PROFESSIONAL: 'professional',
-};
+import { UserRole } from './interfaces/auth';
 
 export default function AppRouter() {
 	return (
@@ -42,7 +37,11 @@ export default function AppRouter() {
 					<Route
 						element={
 							<RequireAuth
-								allowedRoles={[ROLES.ADMIN, ROLES.USER, ROLES.PROFESSIONAL]}
+								allowedRoles={[
+									UserRole.ADMIN,
+									UserRole.USER,
+									UserRole.PROFESSIONAL,
+								]}
 							/>
 						}
 					>
