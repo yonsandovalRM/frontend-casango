@@ -1,28 +1,6 @@
 import { createContext, useState, useEffect, ReactNode } from 'react';
 import api from '../api/axios';
-
-interface User {
-	id: string;
-	email: string;
-	role: string;
-	createdAt: string;
-	updatedAt: string;
-}
-
-interface Auth {
-	user: User | null;
-	accessToken: string | null;
-}
-
-interface AuthContextType {
-	auth: Auth | null;
-	setAuth: (auth: Auth | null) => void;
-	persist: boolean;
-	setPersist: (persist: boolean) => void;
-	isLoading: boolean;
-	isInitialized: boolean;
-	refreshToken: () => Promise<string | null>;
-}
+import { Auth, AuthContextType } from '../interfaces/auth';
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import PageMeta from '../../components/common/PageMeta';
 import PageBreadcrumb from '../../components/common/PageBreadCrumb';
 import { useAxiosPrivate } from '../../hooks/useAxiosPrivate';
-import { Plan } from '../../api/models/plans';
+import { Plan } from '../../interfaces/plans';
 
 export const Plans = () => {
 	const [plans, setPlans] = useState<Plan[]>([]);
