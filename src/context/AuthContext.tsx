@@ -74,6 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	// Función para hacer logout limpio
 	const performLogout = async () => {
 		setAuth(null);
+		// Limpiar marca de sesión persistente
+		localStorage.removeItem('sessionStartedWithPersist');
 		try {
 			await api.post('/core/auth/logout', {}, { withCredentials: true });
 		} catch (error) {
@@ -98,10 +100,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		// Solo actuar si ya está inicializado (evita ejecutarse en el primer render)
 		if (!isInitialized) return;
 
-		// Si persist cambia a false y hay una sesión activa, hacer logout
-		if (!persist && auth?.user) {
-			console.log('Persist disabled - Performing logout');
+		// Solo hacer logout si persist cambia de true a false
+		// Y solo si la sesión fue iniciada con persist activado
+		const wasPersistedSession =
+			localStorage.getItem('sessionStartedWithPersist') === 'true';
+
+		if (!persist && auth?.user && wasPersistedSession) {
+			console.log('Persist disabled on persisted session - Performing logout');
 			performLogout();
+			localStorage.removeItem('sessionStartedWithPersist');
 		}
 
 		// Si persist cambia a true, NO restaurar automáticamente la sesión

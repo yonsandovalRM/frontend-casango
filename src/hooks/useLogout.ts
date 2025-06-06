@@ -6,6 +6,8 @@ export const useLogout = () => {
 
 	const logout = async () => {
 		setAuth(null);
+		// Limpiar marca de sesión persistente
+		localStorage.removeItem('sessionStartedWithPersist');
 		try {
 			const response = await api.post(
 				'/core/auth/logout',

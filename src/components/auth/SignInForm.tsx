@@ -58,6 +58,14 @@ export default function SignInForm() {
 			});
 
 			setAuth(response.data);
+
+			// Marcar si la sesión se inició con persist activado
+			if (persist) {
+				localStorage.setItem('sessionStartedWithPersist', 'true');
+			} else {
+				localStorage.removeItem('sessionStartedWithPersist');
+			}
+
 			reset();
 			navigate(from, {
 				replace: true,
