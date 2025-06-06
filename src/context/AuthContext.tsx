@@ -71,19 +71,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		}
 	};
 
-	// Inicializar autenticación al montar el componente
+	// Función para hacer logout limpio
+	const performLogout = async () => {
+		setAuth(null);
+		try {
+			await api.post('/core/auth/logout', {}, { withCredentials: true });
+		} catch (error) {
+			console.error('Logout error:', error);
+		}
+	};
+
+	// Inicializar autenticación al montar el componente (solo una vez)
 	useEffect(() => {
 		if (persist) {
-			console.log('Persist');
+			console.log('Initial check - Persist enabled');
 			checkSession();
 		} else {
-			console.log('No persist');
+			console.log('Initial check - No persist');
 			setIsLoading(false);
 			setIsInitialized(true);
 		}
-	}, [persist]);
+	}, []); // ← Solo se ejecuta al montar, no cuando persist cambia
 
-	// Actualizar localStorage cuando cambie persist
+	// Manejar cambios en persist después de la inicialización
+	useEffect(() => {
+		// Solo actuar si ya está inicializado (evita ejecutarse en el primer render)
+		if (!isInitialized) return;
+
+		// Si persist cambia a false y hay una sesión activa, hacer logout
+		if (!persist && auth?.user) {
+			console.log('Persist disabled - Performing logout');
+			performLogout();
+		}
+
+		// Si persist cambia a true, NO restaurar automáticamente la sesión
+		// El usuario debe iniciar sesión manualmente
+
+		// Actualizar localStorage
+		localStorage.setItem('persist', JSON.stringify(persist));
+	}, [persist, isInitialized, auth?.user]);
+
+	// Efecto separado para actualizar localStorage (mantener compatibilidad)
 	useEffect(() => {
 		localStorage.setItem('persist', JSON.stringify(persist));
 	}, [persist]);

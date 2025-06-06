@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '../../icons';
 import Label from '../form/Label';
@@ -50,10 +50,6 @@ export default function SignInForm() {
 	const handleChangePersist = (checked: boolean) => {
 		setPersist(checked);
 	};
-
-	useEffect(() => {
-		localStorage.setItem('persist', JSON.stringify(persist));
-	}, [persist]);
 
 	const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
 		try {
