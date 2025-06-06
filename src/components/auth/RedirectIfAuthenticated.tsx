@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router';
 import { useAuth } from '../../hooks/useAuth';
 
-export const RequireAuth = ({ allowedRoles }: { allowedRoles?: string[] }) => {
+export const RedirectIfAuthenticated = () => {
 	const { auth, isLoading, isInitialized } = useAuth();
 	const location = useLocation();
 
@@ -14,18 +14,10 @@ export const RequireAuth = ({ allowedRoles }: { allowedRoles?: string[] }) => {
 		);
 	}
 
-	// Si no hay usuario autenticado, redirigir a signin
-	if (!auth?.user) {
-		return <Navigate to='/signin' state={{ from: location }} replace />;
-	}
-
-	// Si hay roles permitidos y el usuario no tiene el rol correcto
-	if (
-		allowedRoles &&
-		allowedRoles.length > 0 &&
-		!allowedRoles.includes(auth.user.role)
-	) {
-		return <Navigate to='/unauthorized' state={{ from: location }} replace />;
+	// Si el usuario está autenticado, redirigir a la ruta de origen o dashboard
+	if (auth?.user) {
+		const redirectTo = location.state?.from?.pathname || '/dashboard';
+		return <Navigate to={redirectTo} replace />;
 	}
 
 	return <Outlet />;

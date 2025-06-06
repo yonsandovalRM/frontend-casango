@@ -1,4 +1,5 @@
-import { createContext, useState } from 'react';
+import { createContext, useState, useEffect, ReactNode } from 'react';
+import api from '../api/axios';
 
 interface User {
 	id: string;
@@ -16,15 +17,124 @@ interface Auth {
 interface AuthContextType {
 	auth: Auth | null;
 	setAuth: (auth: Auth | null) => void;
+	persist: boolean;
+	setPersist: (persist: boolean) => void;
+	isLoading: boolean;
+	isInitialized: boolean;
+	refreshToken: () => Promise<string | null>;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
 	const [auth, setAuth] = useState<Auth | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+	const [isInitialized, setIsInitialized] = useState(false);
+
+	const [persist, setPersist] = useState(() => {
+		try {
+			return JSON.parse(localStorage.getItem('persist') || 'false');
+		} catch {
+			return false;
+		}
+	});
+
+	// Función centralizada para refresh token
+	const refreshToken = async (): Promise<string | null> => {
+		try {
+			const response = await api.get('/core/auth/refresh-token', {
+				withCredentials: true,
+			});
+
+			if (response.status === 200) {
+				setAuth(response.data);
+				return response.data.accessToken;
+			}
+
+			setAuth(null);
+			return null;
+		} catch (error) {
+			console.error('Refresh token failed:', error);
+			setAuth(null);
+			return null;
+		}
+	};
+
+	// Función para verificar la sesión (usa refreshToken)
+	const checkSession = async () => {
+		try {
+			setIsLoading(true);
+			await refreshToken();
+		} finally {
+			setIsLoading(false);
+			setIsInitialized(true);
+		}
+	};
+
+	// Función para hacer logout limpio
+	const performLogout = async () => {
+		setAuth(null);
+		// Limpiar marca de sesión persistente
+		localStorage.removeItem('sessionStartedWithPersist');
+		try {
+			await api.post('/core/auth/logout', {}, { withCredentials: true });
+		} catch (error) {
+			console.error('Logout error:', error);
+		}
+	};
+
+	// Inicializar autenticación al montar el componente (solo una vez)
+	useEffect(() => {
+		if (persist) {
+			console.log('Initial check - Persist enabled');
+			checkSession();
+		} else {
+			console.log('Initial check - No persist');
+			setIsLoading(false);
+			setIsInitialized(true);
+		}
+	}, []); // ← Solo se ejecuta al montar, no cuando persist cambia
+
+	// Manejar cambios en persist después de la inicialización
+	useEffect(() => {
+		// Solo actuar si ya está inicializado (evita ejecutarse en el primer render)
+		if (!isInitialized) return;
+
+		// Solo hacer logout si persist cambia de true a false
+		// Y solo si la sesión fue iniciada con persist activado
+		const wasPersistedSession =
+			localStorage.getItem('sessionStartedWithPersist') === 'true';
+
+		if (!persist && auth?.user && wasPersistedSession) {
+			console.log('Persist disabled on persisted session - Performing logout');
+			performLogout();
+			localStorage.removeItem('sessionStartedWithPersist');
+		}
+
+		// Si persist cambia a true, NO restaurar automáticamente la sesión
+		// El usuario debe iniciar sesión manualmente
+
+		// Actualizar localStorage
+		localStorage.setItem('persist', JSON.stringify(persist));
+	}, [persist, isInitialized, auth?.user]);
+
+	// Efecto separado para actualizar localStorage (mantener compatibilidad)
+	useEffect(() => {
+		localStorage.setItem('persist', JSON.stringify(persist));
+	}, [persist]);
 
 	return (
-		<AuthContext.Provider value={{ auth, setAuth }}>
+		<AuthContext.Provider
+			value={{
+				auth,
+				setAuth,
+				persist,
+				setPersist,
+				isLoading,
+				isInitialized,
+				refreshToken,
+			}}
+		>
 			{children}
 		</AuthContext.Provider>
 	);

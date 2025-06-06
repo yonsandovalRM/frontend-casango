@@ -33,6 +33,11 @@ const navItems: NavItem[] = [
 		name: 'Usuarios',
 		path: '/users',
 	},
+	{
+		icon: <UserCircleIcon />,
+		name: 'Planes',
+		path: '/plans',
+	},
 ];
 
 const othersItems: NavItem[] = [

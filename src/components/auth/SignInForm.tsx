@@ -11,11 +11,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../api/axios';
+import { useNotify } from '../../hooks/useNotify';
 
 interface IFormInputs {
 	email: string;
 	password: string;
-	rememberMe: boolean;
 }
 
 const loginSchema = yup
@@ -28,12 +28,12 @@ const loginSchema = yup
 			.string()
 			.required('Este campo es requerido')
 			.min(6, 'Contraseña debe tener al menos 6 caracteres'),
-		rememberMe: yup.boolean().default(false),
 	})
 	.required();
 
 export default function SignInForm() {
-	const { setAuth } = useAuth();
+	const { setAuth, persist, setPersist } = useAuth();
+	const { notify } = useNotify();
 	const [showPassword, setShowPassword] = useState(false);
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -44,21 +44,41 @@ export default function SignInForm() {
 		defaultValues: {
 			email: 'dr@test.com',
 			password: '123456',
-			rememberMe: false,
 		},
 	});
+
+	const handleChangePersist = (checked: boolean) => {
+		setPersist(checked);
+	};
+
 	const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
 		try {
 			const response = await api.post('/core/auth/login', data, {
 				withCredentials: true,
 			});
+
 			setAuth(response.data);
+
+			// Marcar si la sesión se inició con persist activado
+			if (persist) {
+				localStorage.setItem('sessionStartedWithPersist', 'true');
+			} else {
+				localStorage.removeItem('sessionStartedWithPersist');
+			}
+
 			reset();
 			navigate(from, {
 				replace: true,
 			});
-		} catch (error) {
-			console.log(error);
+		} catch (error: any) {
+			if (error.code === 'ERR_NETWORK') {
+				notify(
+					'Error de conexión: No se pudo conectar con el servidor',
+					'error'
+				);
+			} else {
+				notify(error.response.data.message, 'error');
+			}
 		}
 	};
 	return (
@@ -184,17 +204,11 @@ export default function SignInForm() {
 								</div>
 								<div className='flex items-center justify-between'>
 									<div className='flex items-center gap-3'>
-										<Controller
-											control={control}
-											name='rememberMe'
-											render={({ field }) => (
-												<Checkbox
-													{...field}
-													checked={field.value}
-													onChange={field.onChange}
-												/>
-											)}
+										<Checkbox
+											checked={persist}
+											onChange={handleChangePersist}
 										/>
+
 										<span className='block font-normal text-gray-700 text-theme-sm dark:text-gray-400'>
 											Keep me logged in
 										</span>

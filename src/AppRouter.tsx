@@ -11,6 +11,8 @@ import { RequireAuth } from './components/auth/RequireAuth';
 import { Landing } from './pages/PublicPages/Landing';
 import Unauthorized from './pages/OtherPage/Unauthorized';
 import { Users } from './pages/Dashboard/Users';
+import { RedirectIfAuthenticated } from './components/auth/RedirectIfAuthenticated';
+import { Plans } from './pages/Dashboard/Plans';
 
 const ROLES = {
 	ADMIN: 'admin',
@@ -20,38 +22,42 @@ const ROLES = {
 
 export default function AppRouter() {
 	return (
-		<>
-			<Router>
-				<AuthProvider>
-					<ScrollToTop />
-					<Routes>
-						{/* Dashboard Layout */}
-						<Route
-							element={
-								<RequireAuth
-									allowedRoles={[ROLES.ADMIN, ROLES.USER, ROLES.PROFESSIONAL]}
-								/>
-							}
-						>
-							<Route element={<AppLayout />}>
-								<Route index path='/dashboard' element={<Home />} />
+		<Router>
+			<AuthProvider>
+				<ScrollToTop />
+				<Routes>
+					{/* Página pública */}
+					<Route path='/' element={<Landing />} />
 
-								<Route path='/users' element={<Users />} />
-
-								{/* Others Page */}
-								<Route path='/profile' element={<UserProfiles />} />
-							</Route>
-						</Route>
-						<Route path='/' element={<Landing />} />
-						{/* Auth Layout */}
+					{/* Páginas de autenticación - solo para usuarios no autenticados */}
+					<Route element={<RedirectIfAuthenticated />}>
 						<Route path='/signin' element={<SignIn />} />
 						<Route path='/signup' element={<SignUp />} />
-						<Route path='/unauthorized' element={<Unauthorized />} />
-						{/* Fallback Route */}
-						<Route path='*' element={<NotFound />} />
-					</Routes>
-				</AuthProvider>
-			</Router>
-		</>
+					</Route>
+
+					{/* Página de no autorizado */}
+					<Route path='/unauthorized' element={<Unauthorized />} />
+
+					{/* Dashboard - solo para usuarios autenticados */}
+					<Route
+						element={
+							<RequireAuth
+								allowedRoles={[ROLES.ADMIN, ROLES.USER, ROLES.PROFESSIONAL]}
+							/>
+						}
+					>
+						<Route element={<AppLayout />}>
+							<Route path='/dashboard' element={<Home />} />
+							<Route path='/users' element={<Users />} />
+							<Route path='/plans' element={<Plans />} />
+							<Route path='/profile' element={<UserProfiles />} />
+						</Route>
+					</Route>
+
+					{/* Ruta 404 */}
+					<Route path='*' element={<NotFound />} />
+				</Routes>
+			</AuthProvider>
+		</Router>
 	);
 }
