@@ -6,7 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 export const SessionPersist = () => {
 	const [isLoading, setIsLoading] = useState(true);
 	const { refresh } = useRefreshToken();
-	const { auth } = useAuth();
+	const { auth, persist } = useAuth();
 
 	useEffect(() => {
 		let isMounted = true;
@@ -21,12 +21,11 @@ export const SessionPersist = () => {
 			}
 		};
 		!auth?.accessToken ? checkSession() : setIsLoading(false);
+
+		return () => {
+			isMounted = false;
+		};
 	}, [auth]);
 
-	useEffect(() => {
-		console.log('isLoading', isLoading);
-		console.log('accessToken', auth?.accessToken);
-	}, [isLoading]);
-
-	return isLoading ? <div>Loading...</div> : <Outlet />;
+	return !persist ? <Outlet /> : isLoading ? <div>Loading...</div> : <Outlet />;
 };

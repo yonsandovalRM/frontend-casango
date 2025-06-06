@@ -12,6 +12,7 @@ import { Landing } from './pages/PublicPages/Landing';
 import Unauthorized from './pages/OtherPage/Unauthorized';
 import { Users } from './pages/Dashboard/Users';
 import { SessionPersist } from './components/auth/SessionPersist';
+import { RedirectIfAuthenticated } from './components/auth/RedirectIfAuthenticated';
 
 const ROLES = {
 	ADMIN: 'admin',
@@ -28,11 +29,14 @@ export default function AppRouter() {
 					<Routes>
 						<Route path='/' element={<Landing />} />
 						{/* Auth Layout */}
-						<Route path='/signin' element={<SignIn />} />
-						<Route path='/signup' element={<SignUp />} />
+
 						<Route path='/unauthorized' element={<Unauthorized />} />
 						{/* Dashboard Layout */}
 						<Route element={<SessionPersist />}>
+							<Route element={<RedirectIfAuthenticated />}>
+								<Route path='/signin' element={<SignIn />} />
+								<Route path='/signup' element={<SignUp />} />
+							</Route>
 							<Route
 								element={
 									<RequireAuth

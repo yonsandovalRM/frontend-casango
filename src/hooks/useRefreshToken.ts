@@ -11,7 +11,6 @@ export const useRefreshToken = () => {
 			setAuth(response.data);
 			return response.data.accessToken;
 		} catch (error) {
-			console.log(error);
 			return null;
 		}
 	};

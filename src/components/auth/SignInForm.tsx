@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '../../icons';
 import Label from '../form/Label';
@@ -15,7 +15,6 @@ import api from '../../api/axios';
 interface IFormInputs {
 	email: string;
 	password: string;
-	rememberMe: boolean;
 }
 
 const loginSchema = yup
@@ -28,12 +27,11 @@ const loginSchema = yup
 			.string()
 			.required('Este campo es requerido')
 			.min(6, 'Contraseña debe tener al menos 6 caracteres'),
-		rememberMe: yup.boolean().default(false),
 	})
 	.required();
 
 export default function SignInForm() {
-	const { setAuth } = useAuth();
+	const { setAuth, persist, setPersist } = useAuth();
 	const [showPassword, setShowPassword] = useState(false);
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -44,9 +42,17 @@ export default function SignInForm() {
 		defaultValues: {
 			email: 'dr@test.com',
 			password: '123456',
-			rememberMe: false,
 		},
 	});
+
+	const handleChangePersist = (checked: boolean) => {
+		setPersist(checked);
+	};
+
+	useEffect(() => {
+		localStorage.setItem('persist', JSON.stringify(persist));
+	}, [persist]);
+
 	const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
 		try {
 			const response = await api.post('/core/auth/login', data, {
@@ -184,17 +190,11 @@ export default function SignInForm() {
 								</div>
 								<div className='flex items-center justify-between'>
 									<div className='flex items-center gap-3'>
-										<Controller
-											control={control}
-											name='rememberMe'
-											render={({ field }) => (
-												<Checkbox
-													{...field}
-													checked={field.value}
-													onChange={field.onChange}
-												/>
-											)}
+										<Checkbox
+											checked={persist}
+											onChange={handleChangePersist}
 										/>
+
 										<span className='block font-normal text-gray-700 text-theme-sm dark:text-gray-400'>
 											Keep me logged in
 										</span>
