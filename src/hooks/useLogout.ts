@@ -1,24 +1,30 @@
-import api from '../api/axios';
 import { useAuth } from './useAuth';
+import { useNavigate } from 'react-router';
 
 export const useLogout = () => {
-	const { setAuth } = useAuth();
+	const { logout: contextLogout } = useAuth();
+	const navigate = useNavigate();
 
-	const logout = async () => {
-		setAuth(null);
-		// Limpiar marca de sesión persistente
-		localStorage.removeItem('sessionStartedWithPersist');
+	const logout = async (redirectTo: string = '/signin', message?: string) => {
 		try {
-			const response = await api.post(
-				'/core/auth/logout',
-				{},
-				{ withCredentials: true }
-			);
-			if (response.status !== 201) {
-				console.warn('Logout endpoint failed, but local state cleared');
-			}
+			await contextLogout();
+
+			// Navegar a la página especificada
+			navigate(redirectTo, {
+				replace: true,
+				state: {
+					message: message || 'Has cerrado sesión exitosamente.',
+				},
+			});
 		} catch (error) {
-			console.error(error);
+			console.error('Error during logout:', error);
+			// Aún así navegar, ya que el estado local se limpió
+			navigate(redirectTo, {
+				replace: true,
+				state: {
+					message: 'Sesión cerrada (con errores en el servidor).',
+				},
+			});
 		}
 	};
 
