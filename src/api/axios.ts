@@ -1,8 +1,8 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default axios.create({
+const axiosInstance = axios.create({
 	baseURL: API_URL,
 	headers: {
 		'Content-Type': 'application/json',
@@ -15,3 +15,22 @@ export const apiPrivate = axios.create({
 		'Content-Type': 'application/json',
 	},
 });
+
+const handleNetworkError = (error: AxiosError) => {
+	if (error.code === 'ERR_NETWORK') {
+		console.error('Error de conexión: No se pudo conectar con el servidor');
+	}
+	return Promise.reject(error);
+};
+
+axiosInstance.interceptors.response.use(
+	(response) => response,
+	handleNetworkError
+);
+
+apiPrivate.interceptors.response.use(
+	(response) => response,
+	handleNetworkError
+);
+
+export default axiosInstance;

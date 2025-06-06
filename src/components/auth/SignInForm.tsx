@@ -11,6 +11,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../api/axios';
+import { useNotify } from '../../hooks/useNotify';
+import { AxiosError } from 'axios';
 
 interface IFormInputs {
 	email: string;
@@ -32,6 +34,7 @@ const loginSchema = yup
 
 export default function SignInForm() {
 	const { setAuth, persist, setPersist } = useAuth();
+	const { notify } = useNotify();
 	const [showPassword, setShowPassword] = useState(false);
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -58,13 +61,21 @@ export default function SignInForm() {
 			const response = await api.post('/core/auth/login', data, {
 				withCredentials: true,
 			});
+
 			setAuth(response.data);
 			reset();
 			navigate(from, {
 				replace: true,
 			});
-		} catch (error) {
-			console.log(error);
+		} catch (error: any) {
+			if (error.code === 'ERR_NETWORK') {
+				notify(
+					'Error de conexión: No se pudo conectar con el servidor',
+					'error'
+				);
+			} else {
+				notify(error.response.data.message, 'error');
+			}
 		}
 	};
 	return (
