@@ -6,7 +6,9 @@ export const RedirectIfAuthenticated = () => {
 	const location = useLocation();
 
 	if (auth?.user) {
-		return <Navigate to='/dashboard' state={{ from: location }} replace />;
+		return (
+			<Navigate to={location.state?.from?.pathname || '/dashboard'} replace />
+		);
 	}
 
 	return <Outlet />;

@@ -13,6 +13,7 @@ import Unauthorized from './pages/OtherPage/Unauthorized';
 import { Users } from './pages/Dashboard/Users';
 import { SessionPersist } from './components/auth/SessionPersist';
 import { RedirectIfAuthenticated } from './components/auth/RedirectIfAuthenticated';
+import { Plans } from './pages/Dashboard/Plans';
 
 const ROLES = {
 	ADMIN: 'admin',
@@ -46,9 +47,8 @@ export default function AppRouter() {
 							>
 								<Route element={<AppLayout />}>
 									<Route index path='/dashboard' element={<Home />} />
-
 									<Route path='/users' element={<Users />} />
-
+									<Route path='/plans' element={<Plans />} />
 									{/* Others Page */}
 									<Route path='/profile' element={<UserProfiles />} />
 								</Route>
