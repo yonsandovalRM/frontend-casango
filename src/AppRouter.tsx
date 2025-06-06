@@ -26,6 +26,11 @@ export default function AppRouter() {
 				<AuthProvider>
 					<ScrollToTop />
 					<Routes>
+						<Route path='/' element={<Landing />} />
+						{/* Auth Layout */}
+						<Route path='/signin' element={<SignIn />} />
+						<Route path='/signup' element={<SignUp />} />
+						<Route path='/unauthorized' element={<Unauthorized />} />
 						{/* Dashboard Layout */}
 						<Route element={<SessionPersist />}>
 							<Route
@@ -45,11 +50,7 @@ export default function AppRouter() {
 								</Route>
 							</Route>
 						</Route>
-						<Route path='/' element={<Landing />} />
-						{/* Auth Layout */}
-						<Route path='/signin' element={<SignIn />} />
-						<Route path='/signup' element={<SignUp />} />
-						<Route path='/unauthorized' element={<Unauthorized />} />
+
 						{/* Fallback Route */}
 						<Route path='*' element={<NotFound />} />
 					</Routes>

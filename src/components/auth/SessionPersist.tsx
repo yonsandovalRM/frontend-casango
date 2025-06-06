@@ -9,6 +9,7 @@ export const SessionPersist = () => {
 	const { auth } = useAuth();
 
 	useEffect(() => {
+		let isMounted = true;
 		const checkSession = async () => {
 			try {
 				await refresh();
@@ -16,11 +17,16 @@ export const SessionPersist = () => {
 			} catch (error) {
 				console.error(error);
 			} finally {
-				setIsLoading(false);
+				isMounted && setIsLoading(false);
 			}
 		};
 		!auth?.accessToken ? checkSession() : setIsLoading(false);
 	}, [auth]);
+
+	useEffect(() => {
+		console.log('isLoading', isLoading);
+		console.log('accessToken', auth?.accessToken);
+	}, [isLoading]);
 
 	return isLoading ? <div>Loading...</div> : <Outlet />;
 };

@@ -24,6 +24,7 @@ export const useAxiosPrivate = () => {
 			(response) => response,
 			async (error) => {
 				const originalRequest = error.config;
+				if (error.code === 'ERR_CANCELED') return;
 				if (error.response.status === 401 && !originalRequest._retry) {
 					originalRequest._retry = true;
 					const newAccessToken = await refresh();
