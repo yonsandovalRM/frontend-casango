@@ -21,6 +21,7 @@ interface AuthContextType {
 	setPersist: (persist: boolean) => void;
 	isLoading: boolean;
 	isInitialized: boolean;
+	refreshToken: () => Promise<string | null>;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -38,20 +39,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		}
 	});
 
-	// Función para verificar la sesión
-	const checkSession = async () => {
+	// Función centralizada para refresh token
+	const refreshToken = async (): Promise<string | null> => {
 		try {
 			const response = await api.get('/core/auth/refresh-token', {
 				withCredentials: true,
 			});
+
 			if (response.status === 200) {
 				setAuth(response.data);
-			} else {
-				setAuth(null);
+				return response.data.accessToken;
 			}
-		} catch (error) {
-			console.error('Session check failed:', error);
+
 			setAuth(null);
+			return null;
+		} catch (error) {
+			console.error('Refresh token failed:', error);
+			setAuth(null);
+			return null;
+		}
+	};
+
+	// Función para verificar la sesión (usa refreshToken)
+	const checkSession = async () => {
+		try {
+			setIsLoading(true);
+			await refreshToken();
 		} finally {
 			setIsLoading(false);
 			setIsInitialized(true);
@@ -84,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				setPersist,
 				isLoading,
 				isInitialized,
+				refreshToken,
 			}}
 		>
 			{children}

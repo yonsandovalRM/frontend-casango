@@ -1,13 +1,11 @@
 import { useEffect } from 'react';
 import { apiPrivate } from '../api/axios';
 import { useAuth } from './useAuth';
-import { useRefreshToken } from './useRefreshToken';
 import { useNavigate } from 'react-router';
 
 export const useAxiosPrivate = () => {
-	const { refresh } = useRefreshToken();
 	const navigate = useNavigate();
-	const { auth } = useAuth();
+	const { auth, refreshToken } = useAuth();
 
 	useEffect(() => {
 		const requestIntercept = apiPrivate.interceptors.request.use(
@@ -27,7 +25,7 @@ export const useAxiosPrivate = () => {
 				if (error.code === 'ERR_CANCELED') return;
 				if (error.response.status === 401 && !originalRequest._retry) {
 					originalRequest._retry = true;
-					const newAccessToken = await refresh();
+					const newAccessToken = await refreshToken();
 					if (!newAccessToken) {
 						navigate('/signin', { replace: true });
 						return Promise.reject(error);
@@ -43,7 +41,7 @@ export const useAxiosPrivate = () => {
 			apiPrivate.interceptors.request.eject(requestIntercept);
 			apiPrivate.interceptors.response.eject(responseIntercept);
 		};
-	}, [auth, refresh]);
+	}, [auth, refreshToken]);
 
 	return { api: apiPrivate };
 };
