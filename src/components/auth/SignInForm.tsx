@@ -12,7 +12,6 @@ import * as yup from 'yup';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../api/axios';
 import { useNotify } from '../../hooks/useNotify';
-import { AxiosError } from 'axios';
 
 interface IFormInputs {
 	email: string;
