@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { toast } from 'react-toastify';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -19,6 +20,9 @@ export const apiPrivate = axios.create({
 const handleNetworkError = (error: AxiosError) => {
 	if (error.code === 'ERR_NETWORK') {
 		console.error('Error de conexión: No se pudo conectar con el servidor');
+	}
+	if (error.response?.status === 403) {
+		toast.error('No tienes permisos para esta acción');
 	}
 	return Promise.reject(error);
 };
